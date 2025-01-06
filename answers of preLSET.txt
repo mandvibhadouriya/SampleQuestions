@@ -1,0 +1,620 @@
+Ques .1
+Ans 
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        int[] arr = {1, 3,1, 3,1, 7, 2, 5, 2, 7, 3, 4};
+        
+        System.out.println(findNumberToRemove(arr));
+    }
+
+    public static int findNumberToRemove(int[] arr) {
+        Set<Integer> uniqueNumbers = new HashSet<>();
+        for (int num : arr) {
+            uniqueNumbers.add(num);         }
+        
+        int maxRepeating = 0;
+        int numberToRemove = -1;
+
+        for (int num : uniqueNumbers) {
+            int longestRepeating = getLongestRepeatingSequence(removeNumber(arr, num));
+            if (longestRepeating > maxRepeating) {
+                maxRepeating = longestRepeating;
+                numberToRemove = num;
+            }
+        }
+
+        return numberToRemove;
+    }
+
+    public static int[] removeNumber(int[] arr, int numToRemove) {
+        // Create a new array excluding the target number
+        return Arrays.stream(arr)
+                .filter(num -> num != numToRemove)
+                .toArray();
+    }
+
+    public static int getLongestRepeatingSequence(int[] arr) {
+        int maxLength = 0;
+        int currentLength = 1;
+
+        for (int i = 1; i < arr.length; i++) {
+            if (arr[i] == arr[i - 1]) {
+                currentLength++;
+            } else {
+                maxLength = Math.max(maxLength, currentLength);
+                currentLength = 1;
+            }
+        }
+
+        // Check the last sequence
+        maxLength = Math.max(maxLength, currentLength);
+
+        return maxLength;
+    }
+}
+
+
+Ques 2
+
+import java.util.*;
+public class Main{
+    public static void main(String [] args){
+        Scanner sc = new Scanner(System.in);
+        int N = sc.nextInt();
+        int arr[][] = new int[N][N];
+        for(int i = 0; i < N; i++){
+            for(int j = 0; j < N; j++){
+                arr[i][j] = sc.nextInt();
+            }
+        }
+        
+        List<Integer> rowSum = new ArrayList<Integer>();
+        List<Integer> colSum = new ArrayList<Integer>();
+        for(int i = 0; i < N; i++){
+            int rsum = 0;
+            int csum = 0;
+            for(int j = 0; j < N; j++){
+                rsum += arr[i][j];
+                csum += arr[j][i];
+            }
+            rowSum.add(rsum);
+            colSum.add(csum);
+        }
+        
+        int t1 = Collections.max(rowSum);
+        int t2 = Collections.max(colSum);
+        
+        int target = Math.max(t1, t2);
+        int minProduct = 0;
+        
+        for(int i = 0; i < rowSum.size(); i++){
+            int temp = target - rowSum.get(i);
+            minProduct += temp;
+        }
+        
+        System.out.print(minProduct);
+    }
+}
+
+
+Ques 03
+
+import java.util.*;
+
+public class Main {
+    static class Point {
+        int x, y;
+
+        Point(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    static int rows, cols;
+    static char[][] grid;
+    static Point start;
+    static List<Point> pointsToVisit = new ArrayList<>();
+    static int[][] distances; // Distance matrix for TSP
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Input dimensions
+        rows = scanner.nextInt();
+        cols = scanner.nextInt();
+        scanner.nextLine(); // Consume the newline
+
+        // Input grid
+        grid = new char[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            grid[i] = scanner.nextLine().toCharArray();
+        }
+
+        // Parse grid to find 'S' and exploration points
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j] == 'S') {
+                    start = new Point(i, j);
+                } else if (Character.isDigit(grid[i][j])) {
+                    pointsToVisit.add(new Point(i, j));
+                }
+            }
+        }
+
+        // Add starting point to the list of points to visit
+        pointsToVisit.add(0, start);
+
+        // Calculate distances between all points
+        int n = pointsToVisit.size();
+        distances = new int[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    distances[i][j] = bfs(pointsToVisit.get(i), pointsToVisit.get(j));
+                }
+            }
+        }
+
+        // Solve TSP to find the shortest path
+        int result = tsp(1, 0, new Integer[1 << n][n]);
+        System.out.println(result);
+    }
+
+    // BFS to calculate shortest path between two points
+    private static int bfs(Point start, Point end) {
+        Queue<Point> queue = new LinkedList<>();
+        boolean[][] visited = new boolean[rows][cols];
+        queue.add(start);
+        visited[start.x][start.y] = true;
+
+        int distance = 0;
+        int[] dx = {-1, 1, 0, 0};
+        int[] dy = {0, 0, -1, 1};
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            for (int i = 0; i < size; i++) {
+                Point current = queue.poll();
+                if (current.x == end.x && current.y == end.y) {
+                    return distance;
+                }
+                for (int d = 0; d < 4; d++) {
+                    int nx = current.x + dx[d];
+                    int ny = current.y + dy[d];
+                    if (isValid(nx, ny) && !visited[nx][ny]) {
+                        visited[nx][ny] = true;
+                        queue.add(new Point(nx, ny));
+                    }
+                }
+            }
+            distance++;
+        }
+        return Integer.MAX_VALUE; // No path found
+    }
+
+    // Check if a position is valid for the robot
+    private static boolean isValid(int x, int y) {
+        return x >= 0 && x < rows && y >= 0 && y < cols && grid[x][y] != '*';
+    }
+
+    // TSP using DP with bitmasking
+    private static int tsp(int visited, int current, Integer[][] dp) {
+        if (visited == (1 << pointsToVisit.size()) - 1) {
+            return distances[current][0]; // Return to starting point
+        }
+        if (dp[visited][current] != null) {
+            return dp[visited][current];
+        }
+
+        int minCost = Integer.MAX_VALUE;
+        for (int next = 0; next < pointsToVisit.size(); next++) {
+            if ((visited & (1 << next)) == 0) {
+                int newVisited = visited | (1 << next);
+                int cost = distances[current][next] + tsp(newVisited, next, dp);
+                minCost = Math.min(minCost, cost);
+            }
+        }
+        return dp[visited][current] = minCost;
+    }
+}
+
+Ques no. 04
+
+import java.util.Scanner;
+
+public class RobotVacuumCleaner {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Input the start time and end time in HH:MM format
+        String startTime = scanner.nextLine();
+        String endTime = scanner.nextLine();
+
+        // Calculate the total usage time in minutes
+        int usageTime = calculateUsageTime(startTime, endTime);
+
+        // Calculate the usage fee
+        int fee = calculateFee(usageTime);
+
+        // Output the fee
+        System.out.println(fee);
+
+        scanner.close();
+    }
+
+    private static int calculateUsageTime(String startTime, String endTime) {
+        // Parse start time
+        String[] startParts = startTime.split(":");
+        int startHour = Integer.parseInt(startParts[0]);
+        int startMinute = Integer.parseInt(startParts[1]);
+
+        // Parse end time
+        String[] endParts = endTime.split(":");
+        int endHour = Integer.parseInt(endParts[0]);
+        int endMinute = Integer.parseInt(endParts[1]);
+
+        // Convert times to total minutes from midnight
+        int startTotalMinutes = startHour * 60 + startMinute;
+        int endTotalMinutes = endHour * 60 + endMinute;
+
+        // Handle cases where the end time is earlier than the start time (spans midnight)
+        if (endTotalMinutes < startTotalMinutes) {
+            endTotalMinutes += 24 * 60; // Add 24 hours to the end time
+        }
+
+        // Return the total usage time in minutes
+        return endTotalMinutes - startTotalMinutes;
+    }
+
+    private static int calculateFee(int usageTime) {
+        // Minimum fee for usage <= 30 minutes
+        if (usageTime <= 30) {
+            return 500;
+        }
+
+        // Additional fee for every 10 minutes beyond 30
+        int additionalMinutes = usageTime - 30;
+        int additionalUnits = (int) Math.ceil(additionalMinutes / 10.0);
+        int totalFee = 500 + additionalUnits * 300;
+
+        // Maximum fee cap
+        return Math.min(totalFee, 30000);
+    }
+}
+
+
+Ques No 05
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+
+public class LandPurchase {
+
+    public static Map<Character, Integer> countZones(char[][] grid) {
+        int n = grid.length;
+        Map<Character, Integer> zoneCounts = new HashMap<>();
+        Set<String> visited = new HashSet<>();
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                char owner = grid[i][j];
+                String cell = i + "," + j;
+
+                if (!visited.contains(cell)) {
+                    exploreZone(grid, i, j, owner, visited);
+                    zoneCounts.put(owner, zoneCounts.getOrDefault(owner, 0) + 1);
+                }
+            }
+        }
+        return zoneCounts;
+    }
+
+    private static void exploreZone(char[][] grid, int row, int col, char owner, Set<String> visited) {
+        int n = grid.length;
+        if (row < 0 || row >= n || col < 0 || col >= n) {
+            return;
+        }
+
+        String cell = row + "," + col;
+        if (visited.contains(cell) || grid[row][col] != owner) {
+            return;
+        }
+
+        visited.add(cell);
+
+        // Explore adjacent cells (up, down, left, right)
+        exploreZone(grid, row + 1, col, owner, visited);
+        exploreZone(grid, row - 1, col, owner, visited);
+        exploreZone(grid, row, col + 1, owner, visited);
+        exploreZone(grid, row, col - 1, owner, visited);
+    }
+
+    public static Map<Character, Integer> countGrids(char[][] grid) {
+        Map<Character, Integer> gridCounts = new HashMap<>();
+        for (char[] row : grid) {
+            for (char owner : row) {
+                gridCounts.put(owner, gridCounts.getOrDefault(owner, 0) + 1);
+            }
+        }
+        return gridCounts;
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
+
+        char[][] grid = new char[n][n];
+        for (int i = 0; i < n; i++) {
+            String row = scanner.nextLine();
+            for (int j = 0; j < n; j++) {
+                grid[i][j] = row.charAt(j);
+            }
+        }
+
+        Map<Character, Integer> zoneCounts = countZones(grid);
+        Map<Character, Integer> gridCounts = countGrids(grid);
+
+        char winner = ' ';
+        int maxZones = -1;
+        int maxGrids = -1;
+
+        for (char owner : new char[]{'R', 'G', 'B'}) {
+            int zones = zoneCounts.getOrDefault(owner, 0);
+            int grids = gridCounts.getOrDefault(owner, 0);
+
+            if (zones > maxZones) {
+                maxZones = zones;
+                maxGrids = grids;
+                winner = owner;
+            } else if (zones == maxZones) {
+                if (grids > maxGrids) {
+                    maxGrids = grids;
+                    winner = owner;
+                } else if (grids == maxGrids && winner == ' '){
+                    winner = owner; //First encountered
+                }
+            }
+        }
+
+        System.out.println(winner + " " + maxZones);
+        scanner.close();
+    }
+}
+
+Ques No 06
+
+Ques No 15
+
+void Rotate(int sr, int sc, int er, int ec) {
+    // Base case: If the sub-matrix is a single element or empty, no rotation is needed
+    if (sr >= er || sc >= ec) {
+        return;
+    }
+ 
+    // Temporary variable to store the first element of the sub-matrix
+    int temp = Mat[sr][sc];
+ 
+    // Rotate the top row counter-clockwise
+    for (int c = sc; c < ec; c++) {
+        Mat[sr][c] = Mat[sr][c + 1]; 
+    }
+ 
+    // Rotate the right column counter-clockwise
+    for (int r = sr; r < er; r++) {
+        Mat[r][ec] = Mat[r + 1][ec];
+    }
+ 
+    // Rotate the bottom row counter-clockwise
+    for (int c = ec; c > sc; c--) {
+        Mat[er][c] = Mat[er][c - 1];
+    }
+ 
+    // Rotate the left column counter-clockwise
+    for (int r = er; r > sr; r--) {
+        Mat[r][sc] = Mat[r - 1][sc];
+    }
+ 
+    // Assign the stored first element to its new position
+    Mat[sr + 1][sc] = temp; 
+}
+
+
+// Removal of foreign matter
+
+def can_cover_all_positions(positions, V, K):
+    """
+    Check if it's possible to cover all positions with given V and K uses.
+    """
+    uses = 0
+    n = len(positions)
+    i = 0
+
+    while i < n:
+        # Place the equipment at the farthest position within range V
+        uses += 1
+        target = positions[i] + V
+
+        # Move to the last position that can be covered by this placement
+        while i < n and positions[i] <= target + V:
+            i += 1
+
+        if uses > K:
+            return False
+
+    return True
+
+def find_minimum_adsorption_force(positions, K):
+    """
+    Find the minimum adsorption force V required to cover all positions with K uses.
+    """
+    positions.sort()
+    low, high = 0, positions[-1] - positions[0]
+    result = high
+
+    while low <= high:
+        mid = (low + high) // 2
+
+        if can_cover_all_positions(positions, mid, K):
+            result = mid
+            high = mid - 1
+        else:
+            low = mid + 1
+
+    return result
+
+# Input example
+if __name__ == "__main__":
+    # Example input
+    N, K = map(int, input().strip().split())
+    positions = [int(input().strip()) for _ in range(N)]
+
+    # Calculate minimum adsorption force
+    result = find_minimum_adsorption_force(positions, K)
+    print(result)
+
+// In java
+
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        // Read input values
+        int n = scanner.nextInt(); // Number of foreign matters
+        int k = scanner.nextInt(); // Maximum number of uses of the adsorption equipment
+        
+        int[] positions = new int[n];
+        for (int i = 0; i < n; i++) {
+            positions[i] = scanner.nextInt();
+        }
+        
+        // Sort the positions
+        Arrays.sort(positions);
+        
+        // Perform binary search to find the minimum adsorption force V
+        int left = 0;
+        int right = positions[n - 1] - positions[0]; // Maximum possible range
+        int result = right;
+        
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (canCoverWithForce(positions, n, k, mid)) {
+                result = mid; // Update result with smaller possible force
+                right = mid - 1; // Try to find a smaller force
+            } else {
+                left = mid + 1; // Increase the force
+            }
+        }
+        
+        // Print the minimum adsorption force V
+        System.out.println(result);
+        
+        scanner.close();
+    }
+    
+    // Helper function to check if all foreign matters can be covered with given force V
+    private static boolean canCoverWithForce(int[] positions, int n, int k, int force) {
+        int uses = 0;
+        int i = 0;
+        
+        while (i < n) {
+            int range = positions[i] + 2 * force; // Calculate the range covered by this use
+            uses++;
+            
+            if (uses > k) {
+                return false; // Too many uses required
+            }
+            
+            // Move to the next uncovered foreign matter
+            while (i < n && positions[i] <= range) {
+                i++;
+            }
+        }
+        
+        return true; // All foreign matters covered within K uses
+    }
+}
+
+
+
+// Ques 10 Finding Hidden Pictures
+
+import java.util.Scanner;
+
+public class Main {
+    static int N; // Size of the grid
+    static int[][] grid; // The grid
+    static int X1, X2, X3; // The three numbers that form a hidden picture
+
+    // Direction vectors for 8 directions (up, down, left, right, and diagonals)
+    static int[] dx = {-1, -1, -1, 0, 0, 1, 1, 1};
+    static int[] dy = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        // Input the size of the grid
+        N = sc.nextInt();
+        grid = new int[N][N];
+
+        // Input the grid values
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                grid[i][j] = sc.nextInt();
+            }
+        }
+
+        // Input the three numbers representing the hidden picture
+        X1 = sc.nextInt();
+        X2 = sc.nextInt();
+        X3 = sc.nextInt();
+
+        // Solve the problem
+        int result = solve();
+
+        // Output the result
+        System.out.println(result);
+
+        sc.close();
+    }
+
+    static int solve() {
+        int count = 0;
+
+        // Traverse each cell in the grid
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                // Check if the current cell is X1
+                if (grid[i][j] == X1) {
+                    // Check all 8 directions
+                    for (int d = 0; d < 8; d++) {
+                        int ni1 = i + dx[d]; // Next cell
+                        int nj1 = j + dy[d];
+                        int ni2 = i + 2 * dx[d]; // Cell after the next
+                        int nj2 = j + 2 * dy[d];
+
+                        // Check bounds and values
+                        if (isValid(ni1, nj1) && isValid(ni2, nj2) &&
+                            grid[ni1][nj1] == X2 && grid[ni2][nj2] == X3) {
+                            count++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return count;
+    }
+
+    static boolean isValid(int x, int y) {
+        return x >= 0 && x < N && y >= 0 && y < N;
+    }
+}
+
