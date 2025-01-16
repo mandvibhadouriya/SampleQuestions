@@ -592,6 +592,27 @@ public class Main{
 
 Problem 01: Product display
 
+// My answer
+int CalLargestBlock(int id_ignore){
+		ArrayList<Integer> arr = new ArrayList<>();
+		for(int num : ID){
+			if(num != id_ignore){
+				arr.add(num);
+			}
+		}
+		int maxCount = 0;
+		int currentCount = 1;
+		for(int i = 1; i < arr.size(); i++){
+			if(arr.get(i-1).equals(arr.get(i))){
+				currentCount++;
+			}else{
+				maxCount = Math.max(maxCount, currentCount);
+				currentCount = 1;
+			}
+		}
+		return maxCount;
+	}
+
 int CalLargestBlock(int id_ignore) {
     int size = 0, curr = 0, prev = 0, i = 0;
  
