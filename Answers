@@ -592,6 +592,26 @@ public class Main{
 
 Problem 01: Product display
 
+// More optimized
+int CalLargestBlock(int id_ignore){
+    int maxCount = 0; // Track the longest sequence length
+    int currentCount = 0; // Track the current sequence length
+    int prevNum = Integer.MIN_VALUE; // Previous number in the sequence
+
+    for(int num : ID){
+	if(num == id_ignore){
+		continue;
+	}else if(num == prevNum){
+	 	currentCount++;
+	}else{
+		prevNum = num;
+		currentCount = 1;
+	}
+		maxCount = Math.max(maxCount,currentCount);
+	}
+		return maxCount;
+}
+
 // My answer
 int CalLargestBlock(int id_ignore){
 		ArrayList<Integer> arr = new ArrayList<>();
