@@ -361,6 +361,65 @@ public class Main {
 
 Problem:04  Rental robot vacuum cleaner fee collection
 
+// Full working code is here........................
+import java.time.LocalTime;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Input start and end times
+        LocalTime startTime = LocalTime.parse(sc.next());
+        LocalTime endTime = LocalTime.parse(sc.next());
+        sc.close();
+
+        // Calculate the duration in minutes
+        int duration = calculateDurationInMinutes(startTime, endTime);
+				int totalCost = calculateCost(duration);
+        // Output the result
+        // System.out.println(duration);
+				System.out.println(totalCost);
+    }
+
+    private static int calculateDurationInMinutes(LocalTime startTime, LocalTime endTime) {
+        int startMinutes = startTime.getHour() * 60 + startTime.getMinute();
+        int endMinutes = endTime.getHour() * 60 + endTime.getMinute();
+
+        // If end time is before start time, add 24 hours to end time
+        if (endMinutes < startMinutes) {
+            endMinutes += 24 * 60;
+        }
+
+        return endMinutes - startMinutes;
+    }
+	
+		private static int calculateCost(int duration){
+			int cost = 0;
+			if(duration <= 30){
+				return 500;
+			}else{
+				int tempDuration = duration - 30;
+				int tempCost = (tempDuration / 10) * 300;
+				int remainMins = tempDuration % 10;
+				if(remainMins != 0){
+					tempCost = tempCost + 300;
+				}
+				cost = tempCost + 500;
+			}
+			
+			if(cost >= 30000){
+				cost = 30000;
+			}
+			
+			return cost;
+		}
+}
+
+
+//partially working code..
+
 import java.util.Scanner;
  
 public class Main {
