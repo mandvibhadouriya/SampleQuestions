@@ -180,6 +180,7 @@ public class Main {
         return true; // All foreign matters covered within K uses
     }
 }
+
 Problem 11: Math Galaxy
 
 import java.util.*;
@@ -360,6 +361,146 @@ public class Main {
     }
 }
 
+Problem 07 : Hopscotch
+
+int dr[8] = { -1, 1, 0, 0, -1, -1, 1, 1 };
+int dc[8] = { 0, 0, -1, 1, -1, 1, -1, 1 };
+void Touch(int r, int c)
+{
+    int V;
+    if (A[r][c] == 0) V = 1;
+    else V = 0;
+    A[r][c] = V;
+    // To search in all available directions for current touched cell
+    for (int k = 0; k < 8; k++)
+    {
+        int nr = r;
+        int nc = c;
+        bool bomb = false, match = false;
+         
+        // To check the current direction till the boundary
+        while(true)
+        {
+            nr += dr[k];
+            nc += dc[k];
+             
+            if(nr<0 || nc<0 || nr>=H || nc>=W) break;
+             
+            // if match has been found for V
+            if(V == A[nr][nc])
+            {
+                match=true;
+                break;
+            }
+             
+            // if bomb has been found
+            if(A[nr][nc] == 2)
+            {
+                bomb=true;
+                 
+                // If match is found for current V then break else continue the search
+                if(match) break;
+            }
+        }
+         
+        if(bomb && match) // Complete direction will be changes to V
+        {
+            nr = r;
+            nc = c;
+            while(true)
+            {
+                nr += dr[k];
+                nc += dc[k];
+                if (nr < 0 || nr >= H || nc < 0 || nc >= W) break;
+                A[nr][nc]=V;
+            }
+        }
+        else if(match) // Surrounded values will be changes to V
+        {
+            int temp_r = nr, temp_c = nc;
+            nr = r;
+            nc = c;
+            // Move while within bounds and until you reach target coordinates
+            while (nr != temp_r || nc != temp_c)
+            {
+                // Update rows (move toward target row)
+                if (nr < temp_r) nr++;    // Move down
+                else if (nr > temp_r) nr--;  // Move up
+                // Update columns (move toward target column)
+                if (nc < temp_c) nc++;    // Move right
+                else if (nc > temp_c) nc--;  // Move left
+                // Check if out of bounds
+                if (nr < 0 || nr >= H || nc < 0 || nc >= W) break;
+                // If A[nr][nc] is not V, change it to V
+                if (A[nr][nc] != V)
+                    A[nr][nc] = V;
+            }
+        }
+    }
+}
+
+Problem 06 : Planet Travel 
+
+import java.util.*;
+
+public class Main {
+	
+	public static void main(String[] args){
+		Scanner sc = new Scanner(System.in);
+		int n = sc.nextInt();
+		int []arr = new int[n];
+		for(int i = 0; i < n; i++){
+			arr[i] = sc.nextInt();
+		}
+		int ans = findPossibleCases(arr, n);
+    System.out.println(ans);
+	}
+
+    // Optimized function to solve the problem
+    public static int findPossibleCases(int []arr, int n) {
+        // Arrays to store the previous and next greater elements
+        int[] left = new int[n];
+        int[] right = new int[n];
+        Arrays.fill(left, -1);
+        Arrays.fill(right, -1);
+
+        // Calculate the previous greater element (PGE)
+        Stack<Integer> stack = new Stack<>();
+        for (int i = 0; i < n; i++) {
+            while (!stack.isEmpty() && arr[stack.peek()] <= arr[i]) {
+                stack.pop();
+            }
+            if (!stack.isEmpty()) {
+                left[i] = arr[stack.peek()];
+            }
+            stack.push(i);
+        }
+
+        // Clear the stack for calculating the next greater element (NGE)
+        stack.clear();
+        for (int i = n - 1; i >= 0; i--) {
+            while (!stack.isEmpty() && arr[stack.peek()] <= arr[i]) {
+                stack.pop();
+            }
+            if (!stack.isEmpty()) {
+                right[i] = arr[stack.peek()];
+            }
+            stack.push(i);
+        }
+
+        // Count the valid pairs (arr[i], left[i], right[i])
+        Set<String> validPairs = new HashSet<>();
+        for (int i = 0; i < n; i++) {
+            if (arr[i] < left[i] && arr[i] < right[i]) {
+                validPairs.add(arr[i] + "," + left[i] + "," + right[i]);
+            }
+        }
+
+        // The answer is the size of the valid pairs set + n - 1 (as per the original logic)
+        return validPairs.size() + n - 1;
+    }
+
+}
 
 Problem 05: Creation of a Park
 
