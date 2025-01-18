@@ -182,6 +182,111 @@ public class Main {
 }
 Problem 11: Math Galaxy
 
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int start = sc.nextInt();
+        int dest1 = sc.nextInt();
+        int dest2 = sc.nextInt();
+
+        System.out.println(findMinimumMoves(start, dest1));
+        System.out.println(findMinimumMoves(start, dest2));
+    }
+
+    // Function to find the minimum moves using BFS
+    public static int findMinimumMoves(int start, int destination) {
+        Queue<Integer> queue = new LinkedList<>();
+        Set<Integer> visited = new HashSet<>();
+        queue.add(start);
+        visited.add(start);
+
+        int moves = 0;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            for (int i = 0; i < size; i++) {
+                int current = queue.poll();
+
+                if (current == destination) {
+                    return moves;
+                }
+
+                // Generate all valid neighbors
+                for (int neighbor : generateNeighbors(current)) {
+                    if (!visited.contains(neighbor) && isValidMove(current, neighbor)) {
+                        queue.add(neighbor);
+                        visited.add(neighbor);
+                    }
+                }
+            }
+            moves++;
+        }
+        return -1; // Should never reach here as per the problem statement
+    }
+
+    // Generate all 4-digit numbers differing by one digit
+    public static List<Integer> generateNeighbors(int num) {
+        List<Integer> neighbors = new ArrayList<>();
+        char[] digits = String.valueOf(num).toCharArray();
+
+        for (int i = 0; i < 4; i++) {
+            char original = digits[i];
+
+            for (char d = '0'; d <= '9'; d++) {
+                if (d != original) {
+                    digits[i] = d;
+                    int neighbor = Integer.parseInt(new String(digits));
+                    if (neighbor >= 1000 && neighbor <= 9999) {
+                        neighbors.add(neighbor);
+                    }
+                }
+            }
+            digits[i] = original; // Restore original digit
+        }
+
+        return neighbors;
+    }
+
+    // Check if the move between two planets is valid
+    public static boolean isValidMove(int num1, int num2) {
+        return hasOneDigitDifference(num1, num2) && Math.abs(countFactors(num1) - countFactors(num2)) <= 1;
+    }
+
+    // Check if two numbers differ by exactly one digit
+    public static boolean hasOneDigitDifference(int num1, int num2) {
+        char[] digits1 = String.valueOf(num1).toCharArray();
+        char[] digits2 = String.valueOf(num2).toCharArray();
+
+        int diffCount = 0;
+        for (int i = 0; i < 4; i++) {
+            if (digits1[i] != digits2[i]) {
+                diffCount++;
+            }
+        }
+        return diffCount == 1;
+    }
+
+    // Count the number of factors of a number
+    public static int countFactors(int n) {
+        int count = 0;
+
+        for (int i = 1; i * i <= n; i++) {
+            if (n % i == 0) {
+                count++;
+                if (i != n / i) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+}
+
+
 Problem 10:  Finding hidden pictures
 
 import java.util.Scanner;
