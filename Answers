@@ -361,6 +361,173 @@ public class Main {
     }
 }
 
+Problem 09 : Collection of Parcels
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class Main {
+    static int n;
+    static int[][] parcels;
+    static int[] officeA, officeB;
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Input number of parcels
+        n = sc.nextInt();
+
+        // Input office coordinates
+        officeA = new int[]{sc.nextInt(), sc.nextInt()};
+        officeB = new int[]{sc.nextInt(), sc.nextInt()};
+
+        // Input parcel coordinates
+        parcels = new int[n][2];
+        for (int i = 0; i < n; i++) {
+            parcels[i][0] = sc.nextInt();
+            parcels[i][1] = sc.nextInt();
+        }
+
+        int minFuel = Integer.MAX_VALUE;
+
+        // Iterate through all subsets of parcels (2^n subsets)
+        for (int mask = 0; mask < (1 << n); mask++) {
+            // Generate subsets for A and B
+            List<int[]> parcelsA = new ArrayList<>();
+            List<int[]> parcelsB = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                if ((mask & (1 << i)) != 0) {
+                    parcelsA.add(parcels[i]);
+                } else {
+                    parcelsB.add(parcels[i]);
+                }
+            }
+
+            // Calculate fuel for this distribution of parcels
+            int fuelA = calculateMinFuel(officeA, parcelsA);
+            int fuelB = calculateMinFuel(officeB, parcelsB);
+            minFuel = Math.min(minFuel, fuelA + fuelB);
+        }
+
+        System.out.println(minFuel);
+    }
+
+    // Calculate the minimum fuel required to collect all parcels from a given office
+    static int calculateMinFuel(int[] office, List<int[]> parcels) {
+        if (parcels.isEmpty()) return 0;
+
+        List<List<int[]>> permutations = generatePermutations(parcels);
+        int minFuel = Integer.MAX_VALUE;
+
+        for (List<int[]> order : permutations) {
+            int fuel = 0;
+            int[] currentLocation = office;
+            int parcelsPicked = 0;
+
+            // Calculate fuel for the current order of parcel collection
+            for (int[] parcel : order) {
+                fuel += distance(currentLocation, parcel) * (1 + parcelsPicked);
+                parcelsPicked++;
+                currentLocation = parcel;
+            }
+
+            // Return to the office
+            fuel += distance(currentLocation, office) * (1 + parcelsPicked);
+
+            minFuel = Math.min(minFuel, fuel);
+        }
+
+        return minFuel;
+    }
+
+    // Generate all permutations of a list of parcels
+    static List<List<int[]>> generatePermutations(List<int[]> parcels) {
+        List<List<int[]>> permutations = new ArrayList<>();
+        permute(parcels, 0, permutations);
+        return permutations;
+    }
+
+    static void permute(List<int[]> parcels, int start, List<List<int[]>> permutations) {
+        if (start == parcels.size()) {
+            permutations.add(new ArrayList<>(parcels));
+            return;
+        }
+        for (int i = start; i < parcels.size(); i++) {
+            swap(parcels, i, start);
+            permute(parcels, start + 1, permutations);
+            swap(parcels, i, start); // backtrack
+        }
+    }
+
+    static void swap(List<int[]> parcels, int i, int j) {
+        int[] temp = parcels.get(i);
+        parcels.set(i, parcels.get(j));
+        parcels.set(j, temp);
+    }
+
+    // Calculate Manhattan distance between two points
+    static int distance(int[] a, int[] b) {
+        return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+    }
+}
+
+Problem 08 : Running
+
+import java.util.Scanner;
+ 
+public class Main {
+    static int N; // Number of players
+    static long T; // Time
+    static long[] P = new long[100000 + 10]; // Initial positions of players
+    static long[] S = new long[100000 + 10]; // Speeds of players
+    static int[] group_first = new int[100000 + 10]; // Leader of each group
+ 
+    public void InputData() {
+        Scanner sc = new Scanner(System.in);
+        N = sc.nextInt(); // Number of players
+        T = sc.nextLong(); // Time
+        for (int i = 0; i < N; i++) {
+            P[i] = sc.nextLong(); // Initial position
+            S[i] = sc.nextLong(); // Speed
+        }
+        sc.close();
+    }
+ 
+    public static void main(String[] args) {
+        int ans = 0; // Number of groups
+        Main m = new Main();
+        m.InputData(); // Input data
+ 
+        // Sort players by their initial positions in descending order
+        Integer[] indices = new Integer[N];
+        for (int i = 0; i < N; i++) {
+            indices[i] = i;
+        }
+        java.util.Arrays.sort(indices, (i, j) -> Long.compare(P[j], P[i]));
+ 
+        // Simulate groups
+        long lastPosition = Long.MAX_VALUE; // To track the leader's position
+        for (int idx : indices) {
+            // Calculate the position of the player at time T
+            long currentPosition = P[idx] + S[idx] * T;
+ 
+            // If the player cannot catch up to the previous group leader, form a new group
+            if (currentPosition < lastPosition) {
+                group_first[ans] = idx + 1; // Save leader (1-based index)
+                ans++;
+                lastPosition = currentPosition;
+            }
+        }
+ 
+        // Output results
+        System.out.println(ans); // Number of groups
+        for (int i = 0; i < ans; i++) {
+            System.out.print(group_first[i] + " ");
+        }
+    }
+}
+
 Problem 07 : Hopscotch
 
 int dr[8] = { -1, 1, 0, 0, -1, -1, 1, 1 };
