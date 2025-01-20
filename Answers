@@ -604,81 +604,60 @@ public class Main {
 
 Problem 07 : Hopscotch
 
-int dr[8] = { -1, 1, 0, 0, -1, -1, 1, 1 };
-int dc[8] = { 0, 0, -1, 1, -1, 1, -1, 1 };
-void Touch(int r, int c)
-{
-    int V;
-    if (A[r][c] == 0) V = 1;
-    else V = 0;
-    A[r][c] = V;
-    // To search in all available directions for current touched cell
-    for (int k = 0; k < 8; k++)
-    {
-        int nr = r;
-        int nc = c;
-        bool bomb = false, match = false;
-         
-        // To check the current direction till the boundary
-        while(true)
-        {
-            nr += dr[k];
-            nc += dc[k];
-             
-            if(nr<0 || nc<0 || nr>=H || nc>=W) break;
-             
-            // if match has been found for V
-            if(V == A[nr][nc])
-            {
-                match=true;
-                break;
-            }
-             
-            // if bomb has been found
-            if(A[nr][nc] == 2)
-            {
-                bomb=true;
-                 
-                // If match is found for current V then break else continue the search
-                if(match) break;
-            }
-        }
-         
-        if(bomb && match) // Complete direction will be changes to V
-        {
-            nr = r;
-            nc = c;
-            while(true)
-            {
+    int[] dr = {-1, 1, 0, 0, -1, -1, 1, 1};
+    int[] dc = {0, 0, -1, 1, -1, 1, -1, 1};
+
+    void Touch(int r, int c) {
+        int V;
+        if (A[r][c] == 0) V = 1;
+        else V = 0;
+        A[r][c] = V;
+
+        for (int k = 0; k < 8; k++) {
+            int nr = r;
+            int nc = c;
+            boolean bomb = false, match = false;
+
+            while (true) {
                 nr += dr[k];
                 nc += dc[k];
-                if (nr < 0 || nr >= H || nc < 0 || nc >= W) break;
-                A[nr][nc]=V;
+                if (nr < 0 || nc < 0 || nr >= H || nc >= W) break;
+
+                if (V == A[nr][nc]) {
+                    match = true;
+                    break;
+                }
+
+                if (A[nr][nc] == 2) {
+                    bomb = true;
+                    if (match) break;
+                }
             }
-        }
-        else if(match) // Surrounded values will be changes to V
-        {
-            int temp_r = nr, temp_c = nc;
-            nr = r;
-            nc = c;
-            // Move while within bounds and until you reach target coordinates
-            while (nr != temp_r || nc != temp_c)
-            {
-                // Update rows (move toward target row)
-                if (nr < temp_r) nr++;    // Move down
-                else if (nr > temp_r) nr--;  // Move up
-                // Update columns (move toward target column)
-                if (nc < temp_c) nc++;    // Move right
-                else if (nc > temp_c) nc--;  // Move left
-                // Check if out of bounds
-                if (nr < 0 || nr >= H || nc < 0 || nc >= W) break;
-                // If A[nr][nc] is not V, change it to V
-                if (A[nr][nc] != V)
+
+            if (bomb && match) {
+                nr = r;
+                nc = c;
+                while (true) {
+                    nr += dr[k];
+                    nc += dc[k];
+                    if (nr < 0 || nr >= H || nc < 0 || nc >= W) break;
                     A[nr][nc] = V;
+                }
+            } else if (match) {
+                int temp_r = nr, temp_c = nc;
+                nr = r;
+                nc = c;
+                while (nr != temp_r || nc != temp_c) {
+                    if (nr < temp_r) nr++;
+                    else if (nr > temp_r) nr--;
+                    if (nc < temp_c) nc++;
+                    else if (nc > temp_c) nc--;
+                    if (nr < 0 || nr >= H || nc < 0 || nc >= W) break;
+                    if (A[nr][nc] != V) A[nr][nc] = V;
+                }
             }
         }
     }
-}
 
 Problem 06 : Planet Travel 
 
