@@ -60,7 +60,81 @@ public class Main {
 }
 
 
-Problem 14 : 
+Problem 14 : Dividing an Area
+
+import java.util.*;
+
+public class Main {
+
+    // Function to calculate the new position based on the move
+    private static int[] calculateNewPosition(int[] point, int move, int[][] moves) {
+        return new int[]{point[0] + moves[move][0], point[1] + moves[move][1]};
+    }
+
+    // Function to convert a position (x, y) into a string "x,y"
+    private static String positionToString(int x, int y) {
+        return x + "," + y;
+    }
+
+    public static int countNewConnections(int N, String info) {
+        // Initialize movement rules for each direction
+        int[][] moves = {
+            {1, 0},  // Move down
+            {-1, 0}, // Move up
+            {0, -1}, // Move left
+            {0, 1}   // Move right
+        };
+
+        // Map to store connections between positions
+        Map<String, Set<String>> dp = new HashMap<>();
+        dp.put("0,0", new HashSet<>()); // Start at origin
+
+        // Starting point and count of new connections
+        int[] point = {0, 0};
+        int count = 0;
+
+        // Iterate through each move in the input
+        for (int i = 0; i < N; i++) {
+            char moveChar = info.charAt(i);
+            int move = moveChar - '0'; // Convert character to integer
+
+            // Calculate the new position
+            int[] newPosArray = calculateNewPosition(point, move, moves);
+            String newPos = positionToString(newPosArray[0], newPosArray[1]);
+            String currentPos = positionToString(point[0], point[1]);
+
+            // If the new position is not in the map, create an entry
+            if (!dp.containsKey(newPos)) {
+                dp.put(newPos, new HashSet<>());
+                dp.get(currentPos).add(newPos); // Mark connection
+                dp.get(newPos).add(currentPos); // Mark connection in reverse
+            } else {
+                // If new position exists but not connected to the current position
+                if (!dp.get(newPos).contains(currentPos)) {
+                    count++; // Increment new connection count
+                    dp.get(currentPos).add(newPos); // Mark connection
+                    dp.get(newPos).add(currentPos); // Mark connection in reverse
+                }
+            }
+
+            // Update the current position
+            point = newPosArray;
+        }
+
+        return count; // Return the total count of new connections
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int N = sc.nextInt(); // Number of moves
+        String info = sc.next(); // Movement information
+        sc.close();
+
+        // Calculate and print the result
+        System.out.println(countNewConnections(N, info));
+    }
+}
+
 
 Problem 13 Counter clockwise Rotation:
 
